@@ -1,6 +1,7 @@
 package com.example.ingredientsproject.models
 
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 
 
@@ -8,8 +9,9 @@ class RecetasViewModel : ViewModel() {
     private val _recetas = mutableStateListOf<Receta>()
     private val _ingredientes = mutableStateListOf<Ingrediente>()
 
+    val selectedIngredients = mutableStateListOf<Int>()
+
     init {
-        // Ingredientes globales
         _ingredientes.addAll(
             listOf(
                 Ingrediente(1, "huevo"),
@@ -115,5 +117,40 @@ class RecetasViewModel : ViewModel() {
 
     fun getNombresIngredientes(ids: List<Int>): List<String> {
         return ids.mapNotNull { id -> getIngredienteById(id)?.nombre }
+    }
+
+    fun buscarRecetasPorIngredientes(ids: List<Int>): List<Receta> {
+        if (ids.isEmpty()) return emptyList()
+        return _recetas.filter { receta ->
+            ids.all { it in receta.ingredientes }
+        }
+    }
+
+    // MÉTODOS PARA AGREGAR NUEVOS ELEMENTOS
+    fun agregarIngrediente(nombre: String): Ingrediente {
+        val nuevoId = (_ingredientes.maxOfOrNull { it.id } ?: 0) + 1
+        val nuevoIngrediente = Ingrediente(nuevoId, nombre.trim().lowercase())
+        _ingredientes.add(nuevoIngrediente)
+        return nuevoIngrediente
+    }
+
+    fun agregarReceta(nombre: String, ingredientesIds: List<Int>, preparacion: String): Receta {
+        val nuevoId = (_recetas.maxOfOrNull { it.id } ?: 0) + 1
+        val nuevaReceta = Receta(
+            id = nuevoId,
+            nombre = nombre.trim(),
+            ingredientes = ingredientesIds,
+            preparacion = preparacion.trim()
+        )
+        _recetas.add(nuevaReceta)
+        return nuevaReceta
+    }
+
+    fun existeIngrediente(nombre: String): Boolean {
+        return _ingredientes.any { it.nombre.equals(nombre.trim(), ignoreCase = true) }
+    }
+
+    fun buscarIngredientePorNombre(nombre: String): Ingrediente? {
+        return _ingredientes.find { it.nombre.equals(nombre.trim(), ignoreCase = true) }
     }
 }

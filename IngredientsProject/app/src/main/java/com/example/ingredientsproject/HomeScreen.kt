@@ -1,5 +1,6 @@
 package com.example.ingredientsproject
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -15,21 +16,20 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.ingredientsproject.models.RecetasViewModel
-
+@SuppressLint("UnrememberedGetBackStackEntry")
 @Composable
 fun HomeScreen(
     navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
-    val repository: RecetasViewModel = viewModel()
-    val selectedIngredients = remember { mutableStateListOf<Int>() }
+    val repository: RecetasViewModel = viewModel(navController.getBackStackEntry("home"))
+    val selectedIngredients = repository.selectedIngredients
 
     Column(modifier = modifier.padding(16.dp)) {
         Text("Selecciona Ingredientes", style = MaterialTheme.typography.headlineMedium)
 
         Spacer(Modifier.height(16.dp))
 
-        // Grid de 2 columnas
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             modifier = Modifier
@@ -73,20 +73,9 @@ fun HomeScreen(
             Button(onClick = { selectedIngredients.clear() }, modifier = Modifier.weight(1f)) {
                 Text("Limpiar")
             }
-            Button(onClick = { navController.navigate("busqueda") }, modifier = Modifier.weight(1f)) {
+            Button(onClick = { navController.navigate("result") }, modifier = Modifier.weight(1f)) {
                 Text("Buscar")
             }
-        }
-    }
-}
-
-
-@Composable
-fun DetailScreen(navController: NavHostController, modifier: Modifier) {
-    Column(modifier = modifier) {
-        Text("Pantalla Detalle")
-        Button(onClick = { navController.popBackStack() }) {
-            Text("Volver")
         }
     }
 }
@@ -101,7 +90,6 @@ fun HomeScreenpreview() {
 
         Spacer(Modifier.height(16.dp))
 
-        // Grid de 2 columnas
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             modifier = Modifier
@@ -130,7 +118,6 @@ fun HomeScreenpreview() {
 
         Spacer(Modifier.height(16.dp))
 
-        // Mostrar ingredientes seleccionados
         Text(
             text = "Seleccionados: ${
                 repository.getNombresIngredientes(repository.selectedIngredients).joinToString()
@@ -139,7 +126,6 @@ fun HomeScreenpreview() {
 
         Spacer(Modifier.height(16.dp))
 
-        // Botones Limpiar y Buscar
         Row(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             modifier = Modifier.fillMaxWidth()
@@ -150,17 +136,6 @@ fun HomeScreenpreview() {
             Button(onClick = { /* nadota licen*/ }, modifier = Modifier.weight(1f)) {
                 Text("Buscar")
             }
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DetailScreenPreview() {
-    Column() {
-        Text("Pantalla Detalle")
-        Button(onClick = { }) {
-            Text("Volver")
         }
     }
 }
